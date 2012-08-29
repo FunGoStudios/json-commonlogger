@@ -45,7 +45,7 @@ module Rack
         :duration => now - began_at
       }
 
-      log = @custom_log.call(log) if @custom_log
+      log = @custom_log.call(log, status, header) if @custom_log
 
       logger.write(Yajl::Encoder.encode(log))
       logger.write("\n")
