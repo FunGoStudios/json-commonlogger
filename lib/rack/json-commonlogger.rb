@@ -32,6 +32,8 @@ module Rack
       length = extract_content_length(header)
 
       logger = @logger || env['rack.errors']
+      body = env["rack.input"].read
+
       log = {
         :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
         :user => env["REMOTE_USER"] || "-",
@@ -39,6 +41,7 @@ module Rack
         :method => env["REQUEST_METHOD"],
         :path => env["PATH_INFO"],
         :query => env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"],
+        :body_data => body.empty? ? "" : body,
         :version => env["HTTP_VERSION"],
         :status => status.to_s[0..3],
         :length => length,
