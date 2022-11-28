@@ -34,24 +34,28 @@ module Rack
       logger = @logger || env['rack.errors']
       body = env["rack.input"].read
 
-      log = {
-        :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
-        :user => env["REMOTE_USER"] || "-",
-        :time => now.strftime("%d/%b/%Y %H:%M:%S"),
-        :method => env["REQUEST_METHOD"],
-        :path => env["PATH_INFO"],
-        :query => env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"],
-        :body_data => body.empty? ? "" : body,
-        :version => env["HTTP_VERSION"],
-        :status => status.to_s[0..3],
-        :length => length,
-        :duration => now - began_at
-      }
+      @db = Thread.current
+      if (env["PATH_INFO"] != '/')
+        log = {
+          :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
+          :user => env["REMOTE_USER"] || "-",
+          :time => now.strftime("%d/%b/%Y %H:%M:%S"),
+          :method => env["REQUEST_METHOD"],
+          :path => env["PATH_INFO"],
+          :query => env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"],
+          :body_data => body.empty? ? "" : body,
+          :version => env["HTTP_VERSION"],
+          :status => status.to_s[0..3],
+          :length => length,
+          :duration => now - began_at,
+          :request_id => @db[:request_id]
+        }
 
-      log = @custom_log.call(log, status, header, env) if @custom_log
+        log = @custom_log.call(log, status, header, env) if @custom_log
 
-      logger.write(Yajl::Encoder.encode(log))
-      logger.write("\n")
+        logger.write(Yajl::Encoder.encode(log))
+        logger.write("\n")
+      end
     end
 
     def extract_content_length(headers)
