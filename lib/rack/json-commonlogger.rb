@@ -48,7 +48,9 @@ module Rack
           :status => status.to_s[0..3],
           :length => length,
           :duration => now - began_at,
-          :request_id => @db[:request_id]
+          :request_id => @db[:request_id],
+          :log_level => 'INFO',
+          :message => "#{env["REQUEST_METHOD"]} #{env["PATH_INFO"]}#{env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"]} #{status.to_s[0..3]} #{now - began_at}"
         }
 
         log = @custom_log.call(log, status, header, env) if @custom_log
