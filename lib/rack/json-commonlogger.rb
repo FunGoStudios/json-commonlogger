@@ -35,7 +35,7 @@ module Rack
       body = env["rack.input"].read
 
       @db = Thread.current
-      if (env["PATH_INFO"] != '/')
+      if (env["PATH_INFO"] != '/ping-fstrz')
         log = {
           :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
           :user => env["REMOTE_USER"] || "-",
