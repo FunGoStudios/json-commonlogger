@@ -39,7 +39,6 @@ module Rack
         log = {
           :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
           :user => env["REMOTE_USER"] || "-",
-          :time => now.strftime("%d/%b/%Y %H:%M:%S"),
           :method => env["REQUEST_METHOD"],
           :path => env["PATH_INFO"],
           :query => env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"],
