@@ -17,5 +17,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'yajl-ruby'
   gem.add_development_dependency 'bundler'
   gem.add_development_dependency 'rspec'
-  gem.add_development_dependency 'debugger'
+  gem.add_development_dependency 'byebug'
 end

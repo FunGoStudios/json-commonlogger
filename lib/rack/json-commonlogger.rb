@@ -32,23 +32,31 @@ module Rack
       length = extract_content_length(header)
 
       logger = @logger || env['rack.errors']
-      log = {
-        :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
-        :user => env["REMOTE_USER"] || "-",
-        :time => now.strftime("%d/%b/%Y %H:%M:%S"),
-        :method => env["REQUEST_METHOD"],
-        :path => env["PATH_INFO"],
-        :query => env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"],
-        :version => env["HTTP_VERSION"],
-        :status => status.to_s[0..3],
-        :length => length,
-        :duration => now - began_at
-      }
+      body = env["rack.input"].read
 
-      log = @custom_log.call(log, status, header, env) if @custom_log
+      @db = Thread.current
+      if (env["PATH_INFO"] != '/ping-fstrz')
+        log = {
+          :host => env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"] || "-",
+          :user => env["REMOTE_USER"] || "-",
+          :method => env["REQUEST_METHOD"],
+          :path => env["PATH_INFO"],
+          :query => env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"],
+          :body_data => body.empty? ? "" : body,
+          :version => env["HTTP_VERSION"],
+          :status => status.to_s[0..3],
+          :length => length,
+          :duration => now - began_at,
+          :request_id => @db[:request_id],
+          :log_level => 'INFO',
+          :message => "#{env["REQUEST_METHOD"]} #{env["PATH_INFO"]}#{env["QUERY_STRING"].empty? ? "" : "?"+env["QUERY_STRING"]} #{status.to_s[0..3]} #{now - began_at}"
+        }
 
-      logger.write(Yajl::Encoder.encode(log))
-      logger.write("\n")
+        log = @custom_log.call(log, status, header, env) if @custom_log
+
+        logger.write(Yajl::Encoder.encode(log))
+        logger.write("\n")
+      end
     end
 
     def extract_content_length(headers)
